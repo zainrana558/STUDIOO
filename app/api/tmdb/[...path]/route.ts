@@ -1,18 +1,29 @@
 
 import { NextRequest, NextResponse } from "next/server";
+import { cacheGet, cacheSet } from "@/lib/cache";
 
 const ALLOWED_PATHS = [
   /^search\/multi$/,
   /^trending\/all\/week$/,
   /^movie\/[0-9]+$/,
   /^tv\/[0-9]+$/,
+  /^discover\/movie$/,
+  /^discover\/tv$/,
 ];
+
+// TTLs in seconds per endpoint type
+function getTTL(path: string): number {
+  if (path.startsWith('search/')) return 60 * 5;         // 5 min
+  if (path.startsWith('trending/')) return 60 * 30;      // 30 min
+  if (path.startsWith('discover/')) return 60 * 60;      // 1 hour
+  return 60 * 60 * 6;                                    // 6 hours for detail pages
+}
 
 async function getRatelimit() {
   try {
     const { Ratelimit } = await import('@upstash/ratelimit');
     const { kv } = await import('@vercel/kv');
-    return new Ratelimit({ redis: kv, limiter: Ratelimit.slidingWindow(5, '10s') });
+    return new Ratelimit({ redis: kv, limiter: Ratelimit.slidingWindow(30, '10s') });
   } catch {
     return null;
   }
@@ -37,7 +48,7 @@ export async function GET(
       if (!success) {
         return NextResponse.json(
           { message: "Too many requests. Please try again later." },
-          { status: 429, statusText: "Too Many Requests", headers: { "X-RateLimit-Limit": String(limit), "X-RateLimit-Remaining": String(remaining), "X-RateLimit-Reset": String(reset) } }
+          { status: 429, headers: { "X-RateLimit-Limit": String(limit), "X-RateLimit-Remaining": String(remaining), "X-RateLimit-Reset": String(reset) } }
         );
       }
     }
@@ -46,12 +57,23 @@ export async function GET(
   }
 
   if (!isAllowed(path)) {
-    return NextResponse.json({ message: "This endpoint is not allowed." }, { status: 403, statusText: "Forbidden" });
+    return NextResponse.json({ message: "This endpoint is not allowed." }, { status: 403 });
   }
 
   const TMDB_API_KEY = process.env.TMDB_API_KEY;
   if (!TMDB_API_KEY) {
-    return NextResponse.json({ message: "TMDB API key is not configured." }, { status: 500, statusText: "Internal Server Error" });
+    return NextResponse.json({ message: "TMDB API key is not configured." }, { status: 500 });
+  }
+
+  // Build cache key from path + query params (excluding api_key)
+  const cacheKey = `tmdb:${path}:${searchParams.toString()}`;
+
+  // Try cache first
+  const cached = await cacheGet<unknown>(cacheKey);
+  if (cached) {
+    return NextResponse.json(cached, {
+      headers: { 'X-Cache': 'HIT' },
+    });
   }
 
   const upstreamParams = new URLSearchParams(searchParams);
@@ -63,13 +85,17 @@ export async function GET(
 
     if (!tmdbResponse.ok) {
       const errorBody = await tmdbResponse.json().catch(() => ({ status_code: tmdbResponse.status, status_message: tmdbResponse.statusText }));
-      return NextResponse.json(errorBody, { status: tmdbResponse.status, statusText: tmdbResponse.statusText });
+      return NextResponse.json(errorBody, { status: tmdbResponse.status });
     }
 
     const data = await tmdbResponse.json();
-    return NextResponse.json(data);
+
+    // Store in cache
+    await cacheSet(cacheKey, data, getTTL(path));
+
+    return NextResponse.json(data, { headers: { 'X-Cache': 'MISS' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "An unknown error occurred.";
-    return NextResponse.json({ message: `Failed to fetch data from TMDB.`, error: message }, { status: 500, statusText: "Internal Server Error" });
+    return NextResponse.json({ message: "Failed to fetch data from TMDB.", error: message }, { status: 500 });
   }
 }

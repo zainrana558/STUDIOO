@@ -17,7 +17,7 @@ interface WatchItem {
 }
 
 interface ProfileClientProps {
-    user: { id: string; email?: string; user_metadata?: Record<string, string> };
+    user: { id: string; email?: string; user_metadata?: Record<string, unknown> };
     profile: { username?: string; avatar_url?: string } | null;
     continueWatching: WatchItem[];
     watchlist: WatchItem[];
@@ -33,8 +33,8 @@ export function ProfileClient({ user, profile, continueWatching, watchlist }: Pr
         router.refresh();
     }
 
-    const displayName = profile?.username ?? user.user_metadata?.full_name ?? user.email ?? 'User';
-    const avatarUrl = profile?.avatar_url ?? user.user_metadata?.avatar_url;
+    const displayName = profile?.username ?? String(user.user_metadata?.full_name ?? '') || user.email ?? 'User';
+    const avatarUrl = user.user_metadata?.avatar_url ? String(user.user_metadata.avatar_url) : (profile?.avatar_url ?? undefined);
 
     return (
         <main className="min-h-screen bg-black text-white pt-24 pb-16 px-4 sm:px-8">

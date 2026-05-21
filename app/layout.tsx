@@ -3,12 +3,12 @@ import { PageTransition } from '../components/Layout/PageTransition';
 import { ResponsiveLayout } from '../components/Layout/ResponsiveLayout';
 import { MobileBottomNav } from '../components/Layout/MobileBottomNav';
 import { ThemeProvider } from '../components/ThemeProvider';
-import { Space_Grotesk, Creepster, Orbitron, Fredoka_One, Playfair_Display } from 'next/font/google';
+import { Space_Grotesk, Creepster, Orbitron, Fredoka, Playfair_Display } from 'next/font/google';
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
 const creepster = Creepster({ subsets: ['latin'], weight: '400', variable: '--font-creepster' });
 const orbitron = Orbitron({ subsets: ['latin'], variable: '--font-orbitron' });
-const fredokaOne = Fredoka_One({ subsets: ['latin'], weight: '400', variable: '--font-fredoka-one' });
+const fredokaOne = Fredoka({ subsets: ['latin'], weight: '400', variable: '--font-fredoka-one' });
 const playfairDisplay = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair-display' });
 
 export const metadata = {

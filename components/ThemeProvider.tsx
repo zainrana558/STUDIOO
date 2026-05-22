@@ -47,7 +47,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           previousVars[key] = body.style.getPropertyValue(key);
       });
 
-      // Apply new theme
+      // Apply new theme with smooth transition
+      body.style.setProperty('transition', 'background-color 0.4s ease, color 0.4s ease');
       Object.entries(cssVars).forEach(([key, value]) => {
           body.style.setProperty(key, value);
       });

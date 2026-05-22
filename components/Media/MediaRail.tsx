@@ -16,18 +16,16 @@ interface MediaRailProps {
  */
 export const MediaRail = ({ title, items, theme }: MediaRailProps) => {
     const containerVariants = {
-        hidden: { opacity: 0 },
+        hidden:  { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: {
-                staggerChildren: 0.1, // Animate each card with a 0.1s delay
-            },
+            transition: { staggerChildren: 0.05 }, // was 0.1 — halved to cut 4-rail animation time from ~2s to ~1s
         },
     };
 
     const itemVariants = {
-        hidden: { opacity: 0, y: 20 }, // Start transparent and slightly down
-        visible: { opacity: 1, y: 0 },   // End opaque and at original position
+        hidden:  { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0 },
     };
 
     return (

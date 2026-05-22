@@ -13,9 +13,10 @@ export async function getWatchlist(userId: string) {
     const supabase = getSupabase();
     const { data, error } = await supabase
         .from('watchlists')
-        .select('*')
+        .select('tmdb_id, media_type, title, poster_path, added_at')
         .eq('user_id', userId)
-        .order('added_at', { ascending: false });
+        .order('added_at', { ascending: false })
+        .limit(200);
 
     if (error) throw new Error(error.message);
     return data;
@@ -52,9 +53,10 @@ export async function getContinueWatching(userId: string) {
     const supabase = getSupabase();
     const { data, error } = await supabase
         .from('continue_watching')
-        .select('*')
+        .select('tmdb_id, media_type, title, poster_path, progress_seconds, duration_seconds, season_number, episode_number, episode_title, updated_at')
         .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false })
+        .limit(100);
 
     if (error) throw new Error(error.message);
     return data;
@@ -79,7 +81,7 @@ export async function getProfile(userId: string) {
     const supabase = getSupabase();
     const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, avatar_url, created_at')
         .eq('id', userId)
         .maybeSingle();
 

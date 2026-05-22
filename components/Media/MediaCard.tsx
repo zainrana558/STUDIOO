@@ -17,7 +17,7 @@ interface MediaCardProps {
  * It is a Client Component designed to receive theme data from a Server Component parent.
  */
 export const MediaCard = ({ item, theme }: MediaCardProps) => {
-  const imageUrl = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '';
+  const imageUrl = item.poster_path ? `https://image.tmdb.org/t/p/w342${item.poster_path}` : '';
   const mediaType = item.media_type || 'movie';
 
   const themeOverlayEffects: Record<Theme['id'], string> = {
@@ -57,7 +57,9 @@ export const MediaCard = ({ item, theme }: MediaCardProps) => {
                 src={imageUrl}
                 alt={item.title || item.name || ''}
                 fill
+                sizes="(max-width: 768px) 160px, 192px"
                 style={{ objectFit: 'cover' }}
+                loading="lazy"
                 className="transition-transform duration-500 ease-in-out group-hover:scale-105"
               />
             ) : (

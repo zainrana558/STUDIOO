@@ -16,7 +16,7 @@ export const ResponsiveLayout = ({ children }: { children: React.ReactNode }) =>
     return (
         <>
             <SidebarNav isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
-            <main className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
+            <main className={`transition-all duration-300 ease-in-out pb-16 md:pb-0 ${isCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
                 {children}
             </main>
         </>

@@ -50,7 +50,7 @@ export const themes: Record<string, Theme> = {
     description: 'Fun animated shows for all ages.',
     emoji: '🎨',
     colors: {
-      primary: '#FF007A',
+      primary: '#FF6EC7',
       secondary: '#1a1a2e',
       accent: '#00E5FF',
       background: '#1a1a2e',

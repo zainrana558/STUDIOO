@@ -20,7 +20,7 @@ export const HeroBanner = ({ media, theme }: HeroBannerProps) => {
     const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
     return (
-        <div className="h-[90vh] w-full relative overflow-hidden" style={{ background: theme.colors.secondary }}>
+        <div className="h-[60vh] md:h-[90vh] w-full relative overflow-hidden" style={{ background: theme.colors.secondary }}>
             <motion.div className="absolute inset-0 z-0" style={{ y }}>
                 {media.backdrop_path ? (
                     <Image

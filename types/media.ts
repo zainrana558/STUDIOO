@@ -47,6 +47,10 @@ export interface MediaDetails extends Media {
   tagline?: string;
   imdb_id?: string;
 }
+  status?: string;
+  tagline?: string;
+  imdb_id?: string;
+}
 
 export interface MediaListResponse {
     page: number;

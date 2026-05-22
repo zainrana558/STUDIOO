@@ -123,10 +123,9 @@ export async function getDiscoverTV(genreSlug: string, sort_by = 'popularity.des
 }
 
 export async function getMediaDetails(type: 'movie' | 'tv', id: string): Promise<Media | null> {
-    const params = 'append_to_response=videos';
+    const params = 'append_to_response=videos,seasons';
     const media = await fetchTMDBDetail(`${type}/${id}`, params);
     if (!media) return null;
-
     media.media_type = type;
     return media;
 }

@@ -8,18 +8,20 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+
   const cspHeader = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' https://image.tmdb.org",
-    "font-src 'self'",
+    "img-src 'self' https://image.tmdb.org https://lh3.googleusercontent.com data:",
+    "font-src 'self' https://fonts.gstatic.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "frame-src 'self' https://vidsrc.cc/ https://vidsrc.to/ https://vidsrc.me/ https://www.2embed.cc/ https://www.youtube.com/ https://vidphantom.com/ https://nexstream.site/",
-    "connect-src 'self'",
+    "frame-src 'self' https://vidsrc.cc/ https://vidsrc.to/ https://vidsrc.me/ https://www.2embed.cc/ https://www.youtube.com/ https://www.youtube-nocookie.com/ https://vidphantom.com/ https://nexstream.site/",
+    `connect-src 'self' https://api.themoviedb.org ${supabaseUrl} wss://${supabaseUrl.replace('https://', '')}`,
     "upgrade-insecure-requests",
   ].join('; ');
 

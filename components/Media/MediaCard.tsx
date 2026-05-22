@@ -68,11 +68,11 @@ export const MediaCard = ({ item, theme }: MediaCardProps) => {
           </div>
           
           <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-            <h3 className={`text-white text-base font-bold truncate transition-colors duration-300 ${themeTitleHoverColor[theme.id]} ${theme.fonts.body}`}>
+            <h3 className={`text-white text-sm font-bold truncate transition-colors duration-300 ${themeTitleHoverColor[theme.id]} font-sans`}>
               {item.title || item.name}
             </h3>
             {item.release_date && (
-              <p className={`text-gray-400 text-xs ${theme.fonts.body}`}>
+              <p className="text-gray-400 text-xs font-sans">
                 {item.release_date.substring(0, 4)}
               </p>
             )}

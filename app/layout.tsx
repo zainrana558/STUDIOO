@@ -5,11 +5,11 @@ import { MobileBottomNav } from '../components/Layout/MobileBottomNav';
 import { ThemeProvider } from '../components/providers/ThemeProvider';
 import { Space_Grotesk, Creepster, Orbitron, Fredoka, Playfair_Display } from 'next/font/google';
 
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
-const creepster = Creepster({ subsets: ['latin'], weight: '400', variable: '--font-creepster' });
-const orbitron = Orbitron({ subsets: ['latin'], variable: '--font-orbitron' });
-const fredokaOne = Fredoka({ subsets: ['latin'], weight: '400', variable: '--font-fredoka-one' });
-const playfairDisplay = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair-display' });
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk', display: 'swap' });
+const creepster = Creepster({ subsets: ['latin'], weight: '400', variable: '--font-creepster', display: 'swap' });
+const orbitron = Orbitron({ subsets: ['latin'], variable: '--font-orbitron', display: 'swap' });
+const fredokaOne = Fredoka({ subsets: ['latin'], weight: '400', variable: '--font-fredoka-one', display: 'swap' });
+const playfairDisplay = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair-display', display: 'swap' });
 
 export const metadata = {
   title: 'Lumina — Next-Gen Streaming',

@@ -313,7 +313,7 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
                         <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-10 text-center p-6">
-                            <p className="text-white text-lg font-semibold mb-2">This server isn't responding</p>
+                            <p className="text-white text-lg font-semibold mb-2">This server isn&apos;t responding</p>
                             <p className="text-gray-400 text-sm mb-6">Try switching to a different server below.</p>
                             <div className="flex flex-wrap gap-2 justify-center">
                                 {SERVERS.filter(s => s.key !== activeServer).map(s => (

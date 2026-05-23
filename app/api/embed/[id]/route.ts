@@ -5,8 +5,9 @@ import { getProviderUrl } from '@/lib/providers';
 async function getRatelimit() {
   try {
     const { Ratelimit } = await import('@upstash/ratelimit');
-    const { kv } = await import('@vercel/kv');
-    return new Ratelimit({ redis: kv, limiter: Ratelimit.slidingWindow(10, '10s') });
+    const { Redis } = await import('@upstash/redis');
+    const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL!, token: process.env.UPSTASH_REDIS_REST_TOKEN! });
+    return new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(10, '10s') });
   } catch {
     return null;
   }

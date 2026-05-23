@@ -52,7 +52,12 @@ export async function GET(
 
   try {
     const embedUrl = getProviderUrl(resolvedProvider, mediaType as 'movie' | 'tv', { id, s: season, e: episode });
-    return NextResponse.redirect(embedUrl, { status: 307 });
+    const redirectResponse = NextResponse.redirect(embedUrl, { status: 307 });
+    // Pass NexStream API key as a request header — never in the URL
+    if (resolvedProvider === 'nexstream' && process.env.NEXSTREAM_API_KEY) {
+      redirectResponse.headers.set('X-API-Key', process.env.NEXSTREAM_API_KEY);
+    }
+    return redirectResponse;
   } catch (error) {
     console.error(`[EMBED_REDIRECT_ERROR] for provider ${resolvedProvider}:`, error);
     const message = error instanceof Error ? error.message : 'An unknown error occurred during URL construction.';

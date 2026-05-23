@@ -41,24 +41,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           '--font-body': activeTheme.fonts.body,
       };
 
-      // Store previous values for cleanup
-      const previousVars: Record<string, string> = {};
-      Object.entries(cssVars).forEach(([key, value]) => {
-          previousVars[key] = body.style.getPropertyValue(key);
-      });
-
-      // Apply new theme with smooth transition
+      // Apply theme CSS vars — no cleanup on unmount to prevent FOUC in React Strict Mode
+      // Next theme change overwrites these vars directly
       body.style.setProperty('transition', 'background-color 0.4s ease, color 0.4s ease');
       Object.entries(cssVars).forEach(([key, value]) => {
           body.style.setProperty(key, value);
       });
-
-      // Cleanup function - restore previous values when unmounting or theme changes
-      return () => {
-        Object.keys(cssVars).forEach((key) => {
-            body.style.removeProperty(key);
-        });
-      };
     }
   }, [activeTheme]);
 

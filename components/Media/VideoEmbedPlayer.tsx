@@ -34,7 +34,20 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
     const [isPlaying,     setIsPlaying]     = useState(false);
     const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, number>>({});
 
-    const sessionStartRef = useRef<number | null>(null);
+    const [playerError, setPlayerError] = useState(false);
+    const playerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Reset error state on server/episode change
+    useEffect(() => {
+        setPlayerError(false);
+        // If iframe doesn't signal any activity within 12s, show error prompt
+        if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current);
+        playerTimeoutRef.current = setTimeout(() => {
+            // Only show error if not playing — if playing, player is fine
+            if (!sessionStartRef.current) setPlayerError(true);
+        }, 12000);
+        return () => { if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current); };
+    }, [activeServer, activeSeason, activeEpisode]);
     const accumulatedRef  = useRef<number>(0);
     const lastSavedRef    = useRef<number>(0);
     // Debounce rapid episode switching — prevents DB connection exhaustion
@@ -134,14 +147,52 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
         return () => clearInterval(interval);
     }, [saveProgress]);
 
-    // ── Save on page leave ───────────────────────────────────────────────────
+    // ── Save on page leave — use sendBeacon for guaranteed delivery on tab-close ──
     useEffect(() => {
-        window.addEventListener('beforeunload', saveProgress);
-        return () => {
-            saveProgress();
-            window.removeEventListener('beforeunload', saveProgress);
+        const handleUnload = () => {
+            const rawCurrent = accumulatedRef.current +
+                (sessionStartRef.current !== null ? (Date.now() - sessionStartRef.current) / 1000 : 0);
+            const current = Math.max(0, Math.min(rawCurrent, MAX_PROGRESS_SECONDS));
+            if (current - lastSavedRef.current < 5) return;
+
+            const rawDuration = media.media_type === 'movie'
+                ? (media.runtime ?? 0) * 60
+                : (media.episode_run_time?.[0] ?? 0) * 60;
+
+            const payload = JSON.stringify({
+                tmdb_id:          String(media.id),
+                media_type:       media.media_type ?? 'movie',
+                title:            media.title ?? media.name ?? '',
+                poster_path:      media.poster_path ?? null,
+                progress_seconds: Math.round(current),
+                duration_seconds: Math.round(Math.max(0, Math.min(rawDuration, MAX_DURATION_SECONDS))),
+                ...(media.media_type === 'tv'
+                    ? { season_number: activeSeason, episode_number: activeEpisode }
+                    : {}),
+            });
+
+            // sendBeacon is fire-and-forget but guaranteed to complete even on tab close
+            // Falls back to async fetch for environments that don't support it
+            const blob = new Blob([payload], { type: 'application/json' });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/continue-watching', blob);
+            } else {
+                // keepalive fetch as fallback
+                fetch('/api/continue-watching', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: payload,
+                    keepalive: true,
+                }).catch(() => {});
+            }
         };
-    }, [saveProgress]);
+
+        window.addEventListener('beforeunload', handleUnload);
+        return () => {
+            saveProgress(); // async save on React unmount (navigation within app)
+            window.removeEventListener('beforeunload', handleUnload);
+        };
+    }, [saveProgress, media, activeSeason, activeEpisode]);
 
     // ── postMessage — origin-validated ──────────────────────────────────────
     useEffect(() => {
@@ -152,6 +203,8 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
                 if (msg?.event === 'play' || msg?.type === 'play') {
                     sessionStartRef.current = Date.now();
                     setIsPlaying(true);
+                    setPlayerError(false);
+                    if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current);
                 } else if (msg?.event === 'pause' || msg?.type === 'pause' || msg?.event === 'ended') {
                     if (sessionStartRef.current !== null) {
                         accumulatedRef.current += (Date.now() - sessionStartRef.current) / 1000;
@@ -252,6 +305,27 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
                         loading="lazy"
                         title={`${media.title ?? media.name ?? 'Video'} — ${activeServer}`}
                     />
+                </AnimatePresence>
+
+                {/* Error overlay — shown if provider doesn't respond within 12s */}
+                <AnimatePresence>
+                    {playerError && (
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-10 text-center p-6">
+                            <p className="text-white text-lg font-semibold mb-2">This server isn't responding</p>
+                            <p className="text-gray-400 text-sm mb-6">Try switching to a different server below.</p>
+                            <div className="flex flex-wrap gap-2 justify-center">
+                                {SERVERS.filter(s => s.key !== activeServer).map(s => (
+                                    <button key={s.key}
+                                        onClick={() => { setActiveServer(s.key); setPlayerError(false); }}
+                                        className="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-black hover:bg-gray-200 transition-colors">
+                                        Try {s.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
                 </AnimatePresence>
             </div>
 

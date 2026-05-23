@@ -88,30 +88,36 @@ export async function getRecommendations(
 
   const scoreMap = new Map<string, { item: TMDBRecommendation; score: number }>();
 
-  await Promise.all(
-    seeds.map(async (seed) => {
-      const type = seed.media_type === 'movie' || seed.media_type === 'tv' ? seed.media_type : 'movie';
-      const [recs, similar] = await Promise.all([
-        getItemRecommendations(type, seed.tmdb_id),
-        getSimilarItems(type, seed.tmdb_id),
-      ]);
+  // Process seeds sequentially in pairs — max 4 concurrent upstream requests at once
+  // Prevents hitting TMDB 40req/10s limit when Redis is cold
+  const chunkSize = 2;
+  for (let i = 0; i < seeds.length; i += chunkSize) {
+    const chunk = seeds.slice(i, i + chunkSize);
+    await Promise.all(
+      chunk.map(async (seed) => {
+        const type = seed.media_type === 'movie' || seed.media_type === 'tv' ? seed.media_type : 'movie';
+        const [recs, similar] = await Promise.all([
+          getItemRecommendations(type, seed.tmdb_id),
+          getSimilarItems(type, seed.tmdb_id),
+        ]);
 
-      for (const item of [...recs, ...similar]) {
-        const key = `${item.media_type ?? type}:${item.id}`;
-        if (seenIds.has(String(item.id))) continue;
+        for (const item of [...recs, ...similar]) {
+          const key = `${item.media_type ?? type}:${item.id}`;
+          if (seenIds.has(String(item.id))) continue;
 
-        const existing = scoreMap.get(key);
-        if (existing) {
-          existing.score += 1;
-        } else {
-          scoreMap.set(key, {
-            item: { ...item, media_type: item.media_type ?? type },
-            score: 1,
-          });
+          const existing = scoreMap.get(key);
+          if (existing) {
+            existing.score += 1;
+          } else {
+            scoreMap.set(key, {
+              item: { ...item, media_type: item.media_type ?? type },
+              score: 1,
+            });
+          }
         }
-      }
-    })
-  );
+      })
+    );
+  }
 
   return Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score || (b.item.vote_average ?? 0) - (a.item.vote_average ?? 0))

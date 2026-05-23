@@ -20,17 +20,14 @@ const defaultProviders: Record<string, ProviderBuilder> = {
     '2embed_movie': ({ id }) => process.env.TWOEMBED_MOVIE_URL || `https://www.2embed.cc/embed/${id}`,
     nexstream: ({ id, s, e }) => {
         const apiKey = process.env.NEXSTREAM_API_KEY;
-        if (!apiKey) {
-            throw new Error('NEXSTREAM_API_KEY is not configured');
-        }
-        return `${process.env.NEXSTREAM_URL || 'https://nexstream.site'}/embed/tv/${id}/${s}/${e}?signature=${apiKey}&ref=lumina`;
+        if (!apiKey) throw new Error('NEXSTREAM_API_KEY is not configured');
+        // API key passed as X-API-Key header in the embed route — NOT in the URL
+        return `${process.env.NEXSTREAM_URL || 'https://nexstream.site'}/embed/tv/${id}/${s}/${e}?ref=lumina`;
     },
     nexstream_movie: ({ id }) => {
         const apiKey = process.env.NEXSTREAM_API_KEY;
-        if (!apiKey) {
-            throw new Error('NEXSTREAM_API_KEY is not configured');
-        }
-        return `${process.env.NEXSTREAM_URL || 'https://nexstream.site'}/embed/movie/${id}?signature=${apiKey}&ref=lumina`;
+        if (!apiKey) throw new Error('NEXSTREAM_API_KEY is not configured');
+        return `${process.env.NEXSTREAM_URL || 'https://nexstream.site'}/embed/movie/${id}?ref=lumina`;
     },
 };
 

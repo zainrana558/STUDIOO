@@ -39,11 +39,8 @@ export const MediaCard = ({ item, theme }: MediaCardProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...theme.motion.spring, duration: 0.4 }}
-    >
+    // Outer div is plain — entrance animation handled by MediaRail stagger only
+    <div>
       <Link href={`/${mediaType}/${item.id}`} passHref>
         <motion.div
           className={`relative block w-full overflow-hidden group ${theme.styles.card.borderRadius}`}
@@ -82,6 +79,6 @@ export const MediaCard = ({ item, theme }: MediaCardProps) => {
 
         </motion.div>
       </Link>
-    </motion.div>
+    </div>
   );
 };

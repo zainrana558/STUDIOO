@@ -25,7 +25,7 @@ export const GenreSelector = ({ themes }: GenreSelectorProps) => {
             <h1 className="text-5xl md:text-7xl font-bold mb-2 text-center">Welcome to Lumina</h1>
             <p className="text-lg md:text-xl text-gray-400 mb-12 text-center">Select a genre to begin your cinematic journey.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {Object.values(themes).map((theme) => (
+                {Object.values(themes).filter(t => t.id !== 'default').map((theme) => (
                     <motion.div key={theme.id} variants={variants} whileHover="hover">
                         <Link href={`/genre/${theme.id}`} passHref>
                             <div 

@@ -1,19 +1,33 @@
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { getMediaDetails } from '../../../lib/tmdb';
 import { VideoEmbedPlayer } from '../../../components/Media/VideoEmbedPlayer';
 import { WatchlistButton } from '../../../components/Media/WatchlistButton';
 import { MediaDetails } from '../../../types/media';
 
 type MediaPageProps = {
-    params: {
-        type: 'movie' | 'tv';
-        id: string;
-    };
-    searchParams: {
-        s?: string;
-        e?: string;
-    };
+    params: { type: 'movie' | 'tv'; id: string };
+    searchParams: { s?: string; e?: string };
 };
+
+export async function generateMetadata({ params }: MediaPageProps): Promise<Metadata> {
+    const { type, id } = params;
+    if (type !== 'movie' && type !== 'tv') return { title: 'Lumina' };
+    const media = await getMediaDetails(type, id);
+    if (!media) return { title: 'Not Found — Lumina' };
+    const title = media.title ?? media.name ?? 'Lumina';
+    return {
+        title: `${title} — Lumina`,
+        description: media.overview?.slice(0, 155) ?? `Watch ${title} on Lumina`,
+        openGraph: {
+            title,
+            description: media.overview?.slice(0, 155) ?? '',
+            images: media.backdrop_path
+                ? [{ url: `https://image.tmdb.org/t/p/w1280${media.backdrop_path}` }]
+                : [],
+        },
+    };
+}
 
 export default async function MediaPage({ params, searchParams }: MediaPageProps) {
     const { type, id } = params;

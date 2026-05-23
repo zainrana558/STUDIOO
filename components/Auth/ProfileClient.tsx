@@ -118,11 +118,11 @@ export function ProfileClient({ user, profile, continueWatching, watchlist, reco
                     <h2 className="text-xl font-bold mb-4">Continue Watching</h2>
                     <MediaGrid
                         items={continueWatching.map(i => ({ ...i, id: i.tmdb_id }))}
-                        href: (item) => {
-            const base = `/${item.media_type}/${item.id}`;
-            if (item.season_number) return `${base}?s=${item.season_number}&e=${item.episode_number ?? 1}`;
-            return base;
-        }
+                        href={(item) => {
+                            const base = `/${item.media_type}/${item.id}`;
+                            if (item.season_number) return `${base}?s=${item.season_number}&e=${item.episode_number ?? 1}`;
+                            return base;
+                        }}
                     />
                 </section>
             )}

@@ -35,7 +35,12 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
     const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, number>>({});
 
     const [playerError, setPlayerError] = useState(false);
+    const sessionStartRef = useRef<number | null>(null);
     const playerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const accumulatedRef  = useRef<number>(0);
+    const lastSavedRef    = useRef<number>(0);
+    const saveTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const lastMsgSaveRef  = useRef<number>(0);
 
     // Reset error state on server/episode change
     useEffect(() => {
@@ -48,10 +53,6 @@ export const VideoEmbedPlayer = ({ media, initialSeason = 1, initialEpisode = 1 
         }, 12000);
         return () => { if (playerTimeoutRef.current) clearTimeout(playerTimeoutRef.current); };
     }, [activeServer, activeSeason, activeEpisode]);
-    const accumulatedRef  = useRef<number>(0);
-    const lastSavedRef    = useRef<number>(0);
-    // Debounce rapid episode switching — prevents DB connection exhaustion
-    const saveTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // ── Reset on episode/server change ──────────────────────────────────────
     useEffect(() => {

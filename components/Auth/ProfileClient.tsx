@@ -83,7 +83,7 @@ export function ProfileClient({ user, profile, continueWatching, watchlist, reco
         router.refresh();
     }
 
-    const displayName = profile?.username ?? String(user.user_metadata?.full_name ?? '') || user.email ?? 'User';
+    const displayName = (profile?.username ?? String(user.user_metadata?.full_name ?? '')) || (user.email ?? 'User');
     const avatarUrl = user.user_metadata?.avatar_url ? String(user.user_metadata.avatar_url) : (profile?.avatar_url ?? undefined);
 
     return (

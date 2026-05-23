@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useMemo, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { themes, Theme } from '../lib/themes';
+import { themes, Theme } from '../../lib/themes';
 
 interface ThemeContextType {
   theme: Theme;

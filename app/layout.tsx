@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import { PageTransition } from '../components/Layout/PageTransition';
 import { ResponsiveLayout } from '../components/Layout/ResponsiveLayout';
 import { MobileBottomNav } from '../components/Layout/MobileBottomNav';
-import { ThemeProvider } from '../components/ThemeProvider';
+import { ThemeProvider } from '../components/providers/ThemeProvider';
 import { Space_Grotesk, Creepster, Orbitron, Fredoka, Playfair_Display } from 'next/font/google';
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
@@ -12,8 +12,12 @@ const fredokaOne = Fredoka({ subsets: ['latin'], weight: '400', variable: '--fon
 const playfairDisplay = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair-display' });
 
 export const metadata = {
-  title: 'Lumina - Next-Gen Streaming',
+  title: 'Lumina — Next-Gen Streaming',
   description: 'An elite, high-performance media streaming platform.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

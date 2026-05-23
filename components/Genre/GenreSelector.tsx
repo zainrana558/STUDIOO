@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Theme } from '../lib/themes';
+import { Theme } from '../../lib/themes';
 
 interface GenreSelectorProps {
     themes: Record<string, Theme>;
